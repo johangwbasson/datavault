@@ -20,6 +20,7 @@
 		<db.password>datavault</db.password>
 		<db.url>jdbc:postgresql://localhost:5433/datavault</db.url>
 		<db.dialect>org.jooq.meta.postgres.PostgresDatabase</db.dialect>
+		<db.schema>public</db.schema>
 		<java.version>11</java.version>
 		<spring-cloud.version>2020.0.1</spring-cloud.version>
 		<testcontainers.version>1.15.2</testcontainers.version>
@@ -42,30 +43,26 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jms</artifactId>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-starter-data-r2dbc</artifactId>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-starter-jdbc</artifactId>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-starter-jooq</artifactId>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-starter-security</artifactId>-->
-<!--		</dependency>-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jooq</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.flywaydb</groupId>-->
-<!--			<artifactId>flyway-core</artifactId>-->
-<!--		</dependency>-->
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-function-web</artifactId>
@@ -90,11 +87,6 @@
 			<version>2.2.0</version>
 		</dependency>
 
-<!--		<dependency>-->
-<!--			<groupId>io.r2dbc</groupId>-->
-<!--			<artifactId>r2dbc-postgresql</artifactId>-->
-<!--			<scope>runtime</scope>-->
-<!--		</dependency>-->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
@@ -109,6 +101,21 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>junit</groupId>
+					<artifactId>junit</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.projectreactor</groupId>
@@ -120,11 +127,6 @@
 			<artifactId>spring-rabbit-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.security</groupId>-->
-<!--			<artifactId>spring-security-test</artifactId>-->
-<!--			<scope>test</scope>-->
-<!--		</dependency>-->
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>junit-jupiter</artifactId>
@@ -137,15 +139,28 @@
 		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
-			<artifactId>r2dbc</artifactId>
+			<artifactId>rabbitmq</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
-			<artifactId>rabbitmq</artifactId>
+			<artifactId>testcontainers</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>4.9.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.github.javafaker</groupId>
+			<artifactId>javafaker</artifactId>
+			<version>0.15</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -168,6 +183,16 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.0</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>2.22.0</version>
+			</plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
@@ -184,11 +209,11 @@
 				<artifactId>flyway-maven-plugin</artifactId>
 				<version>7.7.0</version>
 				<configuration>
-					<url>jdbc:postgresql://localhost:5433/datavault</url>
-					<user>datavault</user>
-					<password>datavault</password>
+					<url>${db.url}</url>
+					<user>${db.username}</user>
+					<password>${db.password}</password>
 					<schemas>
-						<schema>public</schema>
+						<schema>${db.schema}</schema>
 					</schemas>
 				</configuration>
 				<dependencies>
@@ -211,7 +236,6 @@
 					</dependency>
 				</dependencies>
 				<configuration>
-					<!-- Configure the database connection -->
 					<jdbc>
 						<driver>${db.driver}</driver>
 						<url>${db.url}</url>
@@ -221,38 +245,20 @@
 
 					<generator>
 						<database>
-							<!-- Configure the used database dialect -->
 							<name>${db.dialect}</name>
-							<!-- Include all tables found from the PUBLIC schema -->
 							<includes>.*</includes>
 							<excludes>flyway_schema_history</excludes>
-							<inputSchema>public</inputSchema>
+							<inputSchema>${db.schema}</inputSchema>
 						</database>
-						<!-- Generate classes for tables and records -->
 						<generate>
 							<records>true</records>
 						</generate>
-						<!-- Configure the target package and directory -->
 						<target>
 							<packageName>net.johanbasson.datavault.support.jooq</packageName>
 							<directory>src/main/java</directory>
 						</target>
 					</generator>
 				</configuration>
-				<!--
-				<executions>
-					<execution>
-						<id>jooq-codegen</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-
-						</configuration>
-					</execution>
-				</executions>
-				-->
 			</plugin>
 
 		</plugins>

@@ -3,6 +3,7 @@ package net.johanbasson.datavault;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.eventbus.EventBus;
 import com.rabbitmq.jms.admin.RMQConnectionFactory;
+import net.johanbasson.datavault.security.SecurityService;
 import net.johanbasson.datavault.system.*;
 import net.johanbasson.datavault.system.commandbus.CommandBus;
 import net.johanbasson.datavault.system.eventbus.EnableGuavaEventBus;
@@ -13,8 +14,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.core.JmsTemplate;
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-//import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.jms.ConnectionFactory;
 import java.util.concurrent.ExecutorService;
@@ -90,8 +91,13 @@ public class DatavaultConfiguration {
         return new EventMessageListener(executorService, eventBus, objectMapper);
     }
 
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
+    @Bean
+    public SecurityService securityService() {
+        return new SecurityService();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }
